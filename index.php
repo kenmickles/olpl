@@ -13,30 +13,30 @@ if ( isset($_POST['item_name']) && $_POST['item_name'] == 'One Laptop Per Lertch
   error_log("Received IPN: {$_POST['item_name']} ({$_POST['payment_gross']}) from {$_POST['payer_email']}");
   
   // validate notification with paypal
-	$url = 'https://www.paypal.com/cgi-bin/webscr?cmd=_notify-validate&'.http_build_query($_POST);
-	$result = file_get_contents($url);
-	
-	// if payment looks good, log it
-	if ( $result == 'VERIFIED' && $_POST['payment_status'] == 'Completed' ) {
-	  $sql = 'INSERT INTO donations (name, email, amount, paypal_txn_id)
-	          VALUES (
-	            "' . mysql_real_escape_string($_POST['first_name'].' '.$_POST['last_name']) . '",
-	            "' . mysql_real_escape_string($_POST['payer_email']) . '",
-	            ' . (double)$_POST['payment_gross'] . ',
-	            "' . mysql_real_escape_string($_POST['txn_id']) . '"
-	          )';
-	  
-	  if ( !mysql_query($sql) ) {
-	    error_log("Failed to log donation: " . mysql_error());
-	  }
-	}
-	
-	die('Thanks!');
+  $url = 'https://www.paypal.com/cgi-bin/webscr?cmd=_notify-validate&'.http_build_query($_POST);
+  $result = file_get_contents($url);
+  
+  // if payment looks good, log it
+  if ( $result == 'VERIFIED' && $_POST['payment_status'] == 'Completed' ) {
+    $sql = 'INSERT INTO donations (name, email, amount, paypal_txn_id)
+            VALUES (
+              "' . mysql_real_escape_string($_POST['first_name'].' '.$_POST['last_name']) . '",
+              "' . mysql_real_escape_string($_POST['payer_email']) . '",
+              ' . (double)$_POST['payment_gross'] . ',
+              "' . mysql_real_escape_string($_POST['txn_id']) . '"
+            )';
+    
+    if ( !mysql_query($sql) ) {
+      error_log("Failed to log donation: " . mysql_error());
+    }
+  }
+  
+  die('Thanks!');
 }
 // User clicked the "return" button at Paypal
 elseif ( isset($_GET['txn_id']) ) {
-	header('Location: ' . $_SERVER['PHP_SELF']);
-	exit;
+  header('Location: ' . $_SERVER['PHP_SELF']);
+  exit;
 }
 
 $goal = 400;
